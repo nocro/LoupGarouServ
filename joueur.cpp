@@ -24,7 +24,7 @@ void Joueur::reveiller()
     awake = true;
 }
 
-std::string Joueur::get_pseudo()
+std::string Joueur::get_pseudo() const 
 {
     return pseudo;
 }

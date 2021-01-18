@@ -15,7 +15,7 @@ Partie::Partie(): enAttenteDeCo(false), portier(waitingClientTrigger, this)
 Partie::~Partie()
 {
     server.stop();
-    std::cout << "le portier n'a pas fini sont service\n"; 
+    // std::cout << "le portier n'a pas fini sont service\n"; 
     portier.join();
     std::cout << "le portier a fini son service \n";
 }
@@ -27,9 +27,13 @@ void Partie::waitingClient()
         std::string pseudo = server.waitClient(); // bloquant 
         if(enAttenteDeCo && pseudo != "error")
         {
-            std::cout << " nouvelle co \n"; 
+            // std::cout << " nouvelle co \n"; 
             joueurs.push_back(Joueur(pseudo));
             std::cout << "bienvenue a " + pseudo + "\n";
+        }
+        else if(!enAttenteDeCo)
+        {
+            break;// pour le moment pas de reconnexion possible (fin je croi) 
         }
         else 
         {
@@ -67,7 +71,7 @@ void Partie::demarage()
         {
             chef = joueurs[0].get_pseudo();
             server.sendTo(chef, "chef");
-            std::cout << " le chef est " << chef << std::endl;
+            std::cout << "le chef est " << chef << std::endl;
         }
         if( chef != "" )
         {
@@ -85,11 +89,10 @@ void Partie::demarage()
                 //std::cout << "recu " << message << std::endl;
                 role_actif = split(message.substr(6,message.size()-6));
                 //std::cout << "roles split : message recu = " + message + " apres traitement :" << std::endl;
-                print(role_actif, " | ");
+                // print(role_actif, " | ");
             }
             else if(message == "lancer")
             {
-                std::cout << "cacacacacacaca\n" ;
                 // std::cout << "ca va partir et on a " << joueurs.size() << " joueurs" << std::endl;
                 enAttenteDeCo = false;
                 // std::cout << "je suis la " << std::endl;
@@ -103,7 +106,7 @@ void Partie::demarage()
 
                 for(unsigned int i = 0 ; i< joueurs.size(); i++)
                 {
-                    std::cout << "ennvoi a " + joueurs[i].get_pseudo() + "lancer " + role_actif[i] +"\n";
+                    // std::cout << "envoi a " + joueurs[i].get_pseudo() + " lancer " + role_actif[i] +"\n";
                     server.sendTo(joueurs[i].get_pseudo(), "lancer " + role_actif[i]);;
                     joueurs[i].set_role(role_actif[i]);
                     role_joueur[role_actif[i]] = i;
@@ -230,7 +233,7 @@ void Partie::run()
                 message_target = server.getMessage(joueurs[role_joueur["loup_garou"]].get_pseudo());
             }
             cible = message_target.substr(5, message_target.size()-5);
-            std::cout << "la cible est " + message_target + " de taille " <<  message_target.size()  << "\n"; 
+            std::cout << "la cible est " + cible << "\n"; 
         }
 
         //sorciere
@@ -279,7 +282,6 @@ void Partie::run()
 
 
         // preparation jour 
-
         if(isEnd()) // s'arrette a la premiere nuit, a changer quand le reste est fait 
         {
             notend=false;
@@ -287,9 +289,11 @@ void Partie::run()
         if(cible != "")
         {
             std::string roleMort = pseudo_role[cible];
+            std::cout << "le role du mort est " << roleMort << std::endl;
             unsigned int indice_mort = role_joueur[roleMort];
             std::string pseudo_mort = joueurs[indice_mort].get_pseudo();
             server.broadcast("mort " + cible + " role " + roleMort);
+            
         }
         server.broadcast("mort " + witchTarget);
 

@@ -31,7 +31,7 @@ public:
     Joueur(std::string name);
     void reveiller();
     void endormir();
-    std::string get_pseudo();
+    std::string get_pseudo() const;
     std::string get_role() const;
     void set_role(std::string newRole);
 };

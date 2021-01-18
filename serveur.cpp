@@ -47,7 +47,7 @@ void Client::listen()// attention blocquant
     char buffer[1024] = { 0 };
     std::string lastRead = "";
     int valread;
-    std::cout << "listener lancer\n";
+    // std::cout << "listener lancer\n";
     bool stop = false;
     do {
         valread = read(m_socket, buffer, 1024);
@@ -81,12 +81,12 @@ void Client::listen()// attention blocquant
         {
             // ca peut surment vouloir dire que la connexion a été cloturé coté client et de toute facon la connexion est perdu donc on stop le reader 
             stop = true;
-            std::cout << "erreur lor de la reception du client " + m_pseudo << std::endl;
+            std::cout << "erreur lor de la reception du client " + m_pseudo << " " << valread << std::endl;
 
 
         }
     } while (!stop);
-    std::cout << "fin du reading sur " << m_pseudo << std::endl;
+    // std::cout << "fin du reading sur " << m_pseudo << std::endl;
 
 }
 
@@ -140,7 +140,7 @@ Server::~Server()
     {
         readers[i].join();
     }
-    std::cout << "tout les readers sont stop" << std::endl;
+    //std::cout << "tout les readers sont stop" << std::endl;
 }
 
 
@@ -172,17 +172,18 @@ std::string Server::waitClient()
             std::cout << "erreur lor de la reception " << valread << std::endl;
     }
 
-
+    char separator = 20; 
+    std::vector<std::string> messages = split(std::string(buffer), separator);
     // une foi que le client a envoyer son pseudo on l'enregistre  (buffer contien le pseudo)
-    clients.push_back(new Client(buffer, socket , address));
+    clients.push_back(new Client(messages[0], socket , address));
 
     // on associe le pseudo au socket 
     //pseudo_socket[std::string(buffer)] = socket;
-    indiceClient[std::string(buffer)] = clients.size()-1 ;
+    indiceClient[std::string(messages[0])] = clients.size()-1 ;
 
     // on lance le thread de lecture sur le socket client
     readers.push_back(std::thread(listenner, clients.back())); 
-    return std::string(buffer);// on retourne le pseudo 
+    return std::string(messages[0]);// on retourne le pseudo 
 
 }
 
